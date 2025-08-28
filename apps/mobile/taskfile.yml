@@ -1,0 +1,14 @@
+version: "3"
+
+tasks:
+  init:
+    cmds:
+      - flutter pub get
+      - dart run build_runner build --delete-conflicting-outputs
+  codegen:
+    cmds:
+      - dart run build_runner build --delete-conflicting-outputs
+  test:
+    cmds:
+      - flutter test --coverage
+  
