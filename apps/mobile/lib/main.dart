@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
-import 'package:whisora/core/presentation/blocs/internet_checker/bloc/internet_checker_bloc.dart';
 import 'package:whisora/core/routes/route_builder.dart';
 import 'package:whisora/utils/bloc_observer.dart';
 import 'package:whisora/utils/dependencies_injection.dart';
@@ -35,9 +34,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => sl<InternetCheckerBloc>(),
-        ),
+        
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,

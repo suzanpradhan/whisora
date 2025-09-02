@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:whisora/core/presentation/blocs/internet_checker/bloc/internet_checker_bloc.dart';
 import 'package:whisora/utils/secure_storage.dart';
 import 'package:whisora/utils/services/dotenv_service.dart';
 
@@ -30,6 +29,4 @@ void _dataSources() {}
 
 void _useCases() {}
 
-void _blocs() {
-  sl.registerFactory(() => InternetCheckerBloc());
-}
+void _blocs() {}
