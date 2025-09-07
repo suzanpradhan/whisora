@@ -1,11 +1,12 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Version } from "@nestjs/common";
 
 @Controller()
 export class AppController {
 
-    @Get()
-    getStatus(): string {
-        return "Whisora Backend is running";
+    @Get('health-check')
+    @Version('1')
+    getStatus(): { message: string } {
+        return { message: "Whisora Backend is running" };
     }
 
 }
