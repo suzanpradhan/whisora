@@ -9,6 +9,7 @@ COPY package.json yarn.lock ./
 
 # install dependencies
 # --frozen-lockfile ensures that the exact versions in yarn.lock are installed
+RUN yarn global add @nestjs/cli
 RUN yarn install --frozen-lockfile
 
 # copy the rest of the application code to the working directory

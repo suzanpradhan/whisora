@@ -5,10 +5,17 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AudioModule } from './audio/audio.module';
+import databaseConfig from 'src/config/database.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.docker' }),
+    ConfigModule.forRoot({ 
+      isGlobal: true, 
+      envFilePath: '.env.docker', 
+      load: [
+        databaseConfig,
+      ] 
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
