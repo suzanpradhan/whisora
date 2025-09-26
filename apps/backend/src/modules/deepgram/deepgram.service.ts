@@ -1,44 +1,96 @@
-// deepgram/deepgram.service.ts
-import { Injectable, Inject } from '@nestjs/common';
-import { DeepgramClient } from '@deepgram/sdk';
-import { DEEPGRAM_CLIENT } from './deepgram.provider';
+import { Inject, Injectable } from "@nestjs/common";
+import { IDeepgramService, IRealTimeConnection } from "./interfaces/transcription-service.interface";
+import { RealTimeTranscriptionEvents } from "./interfaces/transcription-event.interface";
+import { BatchTranscriptionOptions, RealTimeTranscriptionOptions } from "./interfaces/transcription-options.interface";
+import { BatchTranscriptionResult, RealTimeTranscriptionResult } from "./interfaces/transcription-result.interface";
+import { DeepgramClient } from "@deepgram/sdk";
+import { DEEPGRAM_CLIENT } from "./deepgram.provider";
 
 @Injectable()
-export class DeepgramService {
-  constructor(
-    @Inject(DEEPGRAM_CLIENT) private readonly deepgram: DeepgramClient,
-  ) {}
+export class DeepgramService implements IDeepgramService {
+    constructor(
+        @Inject(DEEPGRAM_CLIENT) private readonly deepgramClient: DeepgramClient,
+    ) {}
 
-  getClient(): DeepgramClient {
-    return this.deepgram;
-  }
-
-  // Example method for transcribing audio
-  async transcribeAudio(audioBuffer: Buffer, options?: any) {
-    try {
-      const { result, error } = await this.deepgram.listen.prerecorded.transcribeFile(
-        audioBuffer,
-        options || {
-          model: 'nova-2',
-          smart_format: true,
-        }
-      );
-
-      if (error) throw error;
-      return result;
-    } catch (error) {
-      throw new Error(`Deepgram transcription failed: ${error.message}`);
+    getClient() {
+        return this.deepgramClient;
     }
-  }
 
-  // Example method for real-time transcription
-  createLiveConnection(options?: any) {
-    return this.deepgram.listen.live({
-      model: 'nova-2',
-      interim_results: true,
-      punctuate: true,
-      smart_format: true,
-      ...options,
-    });
-  }
+    private getDefaultBatchOptions(options: BatchTranscriptionOptions): BatchTranscriptionOptions {
+        return {
+            model: '',
+            smart_format: true,
+            punctuate: true,
+            ...options
+        }
+    }
+
+    private getDefaultRealTimeOptions(options: RealTimeTranscriptionOptions): RealTimeTranscriptionOptions {
+        return {
+            model: '',
+            smart_format: true,
+            punctuate: true,
+            ...options
+        }
+    }
+    
+    getSupportedFormats(): string[] {
+        return [
+            'wav', 'mp3', 'mp4', 'm4a', 'ogg', 'webm', 'flac', 
+            'aiff', 'aac', 'amr', 'opus'
+        ];
+    }
+
+    validateAudioBuffer(audioBuffer: Buffer): boolean {
+        if (!audioBuffer || audioBuffer.length === 0) throw new Error('Audio buffer is empty'); 
+
+        if (audioBuffer.length > 100 * 1024 * 1024) throw new Error('Audio file too large. Maximum size is 100MB'); // 100MB limit
+
+        return true;
+    }
+
+    createRealtimeConnection(options?: RealTimeTranscriptionOptions, events?: RealTimeTranscriptionEvents): IRealTimeConnection {
+        const connectionOptions = this.getDefaultRealTimeOptions(options || {});
+        const connection = this.deepgramClient.listen.live(connectionOptions);
+
+        if (events?.onOpen) {
+            connection.addListener('open', events.onOpen);
+        }
+
+        if (events?.onTranscript) {
+            connection.addListener('transcriptReceived', (data: any) => {
+                events.onTranscript!(data as RealTimeTranscriptionResult);
+            });
+        }
+
+        if (events?.onError) {
+            connection.addListener('error', events.onError);
+        }
+
+        if (events?.onClose) {
+            connection.addListener('close', events.onClose);
+        }
+
+        if (events?.onUtteranceEnd) {
+            connection.addListener('utterance_end', events.onUtteranceEnd);
+        }
+
+        throw new Error("Method not implemented.");
+    }
+
+    transcribeAudio(audioBuffer: Buffer, options?: BatchTranscriptionOptions): Promise<BatchTranscriptionResult> {
+        throw new Error("Method not implemented.");
+    }
+
+    transcribeAudioUrl(audioUrl: string, options?: BatchTranscriptionOptions): Promise<BatchTranscriptionResult> {
+        throw new Error("Method not implemented.");
+    }
+
+    transcribeAudioStream(stream: NodeJS.ReadableStream, options?: BatchTranscriptionOptions): Promise<BatchTranscriptionResult> {
+        throw new Error("Method not implemented.");
+    }
+
+    transcribeStream(stream: NodeJS.ReadableStream, options?: RealTimeTranscriptionOptions): Promise<BatchTranscriptionResult> {
+        throw new Error("Method not implemented.");
+    }
 }

@@ -1,7 +1,7 @@
 // deepgram/deepgram.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DeepgramService } from './deepgram.service';
+import { DeepgramService } from './batch-process.service';
 import { DEEPGRAM_CLIENT, deepgramProvider } from './deepgram.provider';
 
 @Module({
